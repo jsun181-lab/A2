@@ -1,0 +1,67 @@
+<svg width="960" height="500" viewBox="0 0 960 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">DataInsight Agent system design</title>
+  <desc id="desc">CSV input flows through perception, decision, action, analysis, memory, and safety modules.</desc>
+  <rect width="960" height="500" rx="18" fill="#fbfcfd"/>
+  <rect x="36" y="36" width="888" height="428" rx="14" fill="#ffffff" stroke="#dbe3e8" stroke-width="2"/>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#14766d"/>
+    </marker>
+  </defs>
+  <g font-family="Inter, Arial, sans-serif">
+    <text x="60" y="76" font-size="25" font-weight="700" fill="#17212b">DataInsight Agent Architecture</text>
+    <text x="60" y="103" font-size="14" fill="#62707f">Profile CSV data, choose cleaning and analysis steps, transform rows, generate charts, and remember results.</text>
+
+    <g transform="translate(58 170)">
+      <rect width="135" height="86" rx="10" fill="#eef4f1" stroke="#bcd8d4"/>
+      <text x="67.5" y="34" text-anchor="middle" font-size="16" font-weight="700" fill="#0d544e">CSV Input</text>
+      <text x="67.5" y="58" text-anchor="middle" font-size="12" fill="#526271">User file or sample</text>
+    </g>
+
+    <g transform="translate(242 170)">
+      <rect width="135" height="86" rx="10" fill="#f6f8ff" stroke="#cbd4f2"/>
+      <text x="67.5" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#344c9a">Perception</text>
+      <text x="67.5" y="53" text-anchor="middle" font-size="12" fill="#526271">Types, missing,</text>
+      <text x="67.5" y="69" text-anchor="middle" font-size="12" fill="#526271">duplicates, outliers</text>
+    </g>
+
+    <g transform="translate(426 170)">
+      <rect width="135" height="86" rx="10" fill="#fff8e8" stroke="#e8c979"/>
+      <text x="67.5" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#7a4b00">Decision</text>
+      <text x="67.5" y="53" text-anchor="middle" font-size="12" fill="#526271">Cleaning mode,</text>
+      <text x="67.5" y="69" text-anchor="middle" font-size="12" fill="#526271">analysis plan</text>
+    </g>
+
+    <g transform="translate(610 170)">
+      <rect width="135" height="86" rx="10" fill="#f2fbf7" stroke="#add7c2"/>
+      <text x="67.5" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#14766d">Action</text>
+      <text x="67.5" y="53" text-anchor="middle" font-size="12" fill="#526271">Clean rows,</text>
+      <text x="67.5" y="69" text-anchor="middle" font-size="12" fill="#526271">export CSV</text>
+    </g>
+
+    <g transform="translate(794 170)">
+      <rect width="110" height="86" rx="10" fill="#f6faf9" stroke="#cfe0dd"/>
+      <text x="55" y="34" text-anchor="middle" font-size="16" font-weight="700" fill="#0d544e">Analysis</text>
+      <text x="55" y="58" text-anchor="middle" font-size="12" fill="#526271">Charts + findings</text>
+    </g>
+
+    <g transform="translate(280 330)">
+      <rect width="170" height="76" rx="10" fill="#fbfcfd" stroke="#dbe3e8"/>
+      <text x="85" y="31" text-anchor="middle" font-size="16" font-weight="700" fill="#17212b">Memory Store</text>
+      <text x="85" y="54" text-anchor="middle" font-size="12" fill="#526271">Recent quality scores</text>
+    </g>
+
+    <g transform="translate(520 330)">
+      <rect width="210" height="76" rx="10" fill="#fff3f4" stroke="#efbdc3"/>
+      <text x="105" y="31" text-anchor="middle" font-size="16" font-weight="700" fill="#b23b45">Safety Guard</text>
+      <text x="105" y="54" text-anchor="middle" font-size="12" fill="#526271">Sensitive columns + risky edits</text>
+    </g>
+
+    <line x1="193" y1="213" x2="234" y2="213" stroke="#14766d" stroke-width="3" marker-end="url(#arrow)"/>
+    <line x1="377" y1="213" x2="418" y2="213" stroke="#14766d" stroke-width="3" marker-end="url(#arrow)"/>
+    <line x1="561" y1="213" x2="602" y2="213" stroke="#14766d" stroke-width="3" marker-end="url(#arrow)"/>
+    <line x1="745" y1="213" x2="786" y2="213" stroke="#14766d" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M365 330 C315 305 305 273 323 258" fill="none" stroke="#14766d" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M625 330 C615 296 596 272 568 250" fill="none" stroke="#14766d" stroke-width="3" marker-end="url(#arrow)"/>
+  </g>
+</svg>

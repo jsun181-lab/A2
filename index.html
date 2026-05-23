@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DataInsight Agent</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-label="DataInsight Agent workspace">
+        <aside class="control-panel" aria-label="CSV agent controls">
+          <div class="brand-block">
+            <p class="eyebrow">CSV cleaning and analysis agent</p>
+            <h1>DataInsight Agent</h1>
+            <p>Perceives data quality issues, decides cleaning and analysis steps, then acts by transforming the dataset, plotting charts, and summarizing findings.</p>
+          </div>
+
+          <div class="privacy-note">
+            Local prototype. Use sample or non-sensitive CSV data only.
+          </div>
+
+          <div class="field-group">
+            <label for="csv-file">CSV file</label>
+            <input id="csv-file" type="file" accept=".csv,text/csv">
+          </div>
+
+          <div class="form-row">
+            <div class="field-group">
+              <label for="cleaning-mode">Cleaning mode</label>
+              <select id="cleaning-mode">
+                <option value="conservative">Conservative</option>
+                <option value="balanced" selected>Balanced</option>
+                <option value="aggressive">Aggressive</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="analysis-goal">Analysis goal</label>
+              <select id="analysis-goal">
+                <option value="sales" selected>Sales analysis</option>
+                <option value="survey">Survey data</option>
+                <option value="general">General dataset</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="csv-text">CSV preview / paste area</label>
+            <textarea id="csv-text" rows="11" placeholder="Paste CSV text here or load the sample dataset."></textarea>
+          </div>
+
+          <div class="button-row">
+            <button id="load-sample" type="button">Load Sample</button>
+            <button id="run-agent" class="primary-button" type="button">Run Agent</button>
+          </div>
+
+          <div class="button-row">
+            <button id="download-csv" type="button" disabled>Cleaned CSV</button>
+            <button id="clear-memory" type="button">Clear Memory</button>
+          </div>
+        </aside>
+
+        <section class="agent-space" aria-label="Agent output">
+          <div id="demo-banner" class="demo-banner is-hidden"></div>
+
+          <div class="loop-strip" aria-label="Agent loop">
+            <span>Perceive</span>
+            <span>Decide</span>
+            <span>Clean</span>
+            <span>Analyze</span>
+            <span>Remember</span>
+          </div>
+
+          <div id="output" class="output-area">
+            <section class="empty-state">
+              <img src="assets/system-design.svg" alt="DataInsight agent architecture">
+            </section>
+          </div>
+
+          <section class="memory-panel" aria-label="Agent memory">
+            <div class="panel-heading">
+              <p class="eyebrow">Memory</p>
+              <h2>Recent analysis checkpoints</h2>
+            </div>
+            <div id="memory-log"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
