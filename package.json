@@ -1,0 +1,18 @@
+{
+  "name": "datainsight-agent",
+  "version": "1.0.0",
+  "description": "An intelligent CSV cleaning and analysis agent prototype for COMPSCI 767 Assignment 2.",
+  "type": "module",
+  "scripts": {
+    "start": "python -m http.server 8765",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "keywords": [
+    "software-agent",
+    "data-cleaning",
+    "data-analysis",
+    "csv",
+    "assignment"
+  ],
+  "license": "MIT"
+}
