@@ -1,31 +1,31 @@
 # 2-Minute Demo Script
 
-## 中文旁白稿
+## English Voiceover Script
 
 0:00-0:15
 
-大家好，这个项目叫 DataInsight Agent，是一个 CSV 数据清洗和分析智能软件代理。它的目标不是简单展示数据，而是模拟一个 agent 的完整流程：感知输入、做出决策、执行清洗和分析动作，并记录最近的运行结果。
+Hello everyone. This project is called DataInsight Agent. It is an intelligent software agent for CSV data cleaning and analysis. The goal is not only to display a dataset, but to demonstrate a full agent loop: perceiving input, making decisions, taking actions, and remembering recent results.
 
 0:15-0:35
 
-首先我打开本地网页应用。左侧是控制面板，可以上传 CSV，也可以加载示例数据。这里我点击 Load Sample，系统会载入一个有问题的销售数据集。这个数据里包含缺失值、重复行、大小写不一致的分类标签，以及一个明显偏高的 Revenue 异常值。
+First, I open the local web application. The control panel on the left lets the user upload a CSV file or load a sample dataset. Here I click Load Sample. The sample sales dataset contains common data quality problems, including missing values, duplicate rows, inconsistent category capitalization, and a clear revenue outlier.
 
 0:35-0:55
 
-接下来我选择 Balanced cleaning mode，然后点击 Run Agent。代理首先进行 Perception，也就是感知阶段。它会识别数据有多少行、多少列，每一列的数据类型、缺失值数量、异常值数量，以及整体数据质量分数。
+Next, I keep the cleaning mode set to Balanced and click Run Agent. The agent first enters the perception stage. It identifies the number of rows and columns, infers each column's data type, counts missing values and outliers, and calculates an overall data quality score.
 
 0:55-1:15
 
-然后进入 Decision 阶段。系统会根据清洗模式自动生成清洗策略。在 balanced 模式下，它选择删除重复行、填补缺失值、标准化 Region 和 Product 这样的分类字段，并且对异常值进行标记，而不是直接修改。这体现了代理根据风险做决策的能力。
+Then the agent moves into the decision stage. Based on the selected cleaning mode, it automatically creates a cleaning strategy. In balanced mode, it removes duplicate rows, fills missing values, standardizes category fields such as Region and Product, and flags outliers instead of directly changing them. This shows that the agent can make decisions based on risk.
 
 1:15-1:35
 
-接下来是 Action 阶段。代理真正执行清洗动作，右侧可以看到数据质量从 94 分提升到 98 分。下面的列表展示了具体动作，例如删除 1 条重复数据、填补缺失 Region 和 Revenue，并给 Revenue 异常值添加 review 标记。
+After that, the agent takes action. It applies the cleaning plan and improves the data quality score from 94 to 98. The action list shows exactly what was changed, such as removing one duplicate row, filling missing Region and Revenue values, and adding a review flag for the Revenue outlier.
 
 1:35-1:50
 
-再往下看分析区域。系统不只生成一种图，而是根据数据类型自动选择多种图表，包括柱状图、环形图、直方图、折线图和散点图。点击 Expand 可以放大图表，方便查看细节。这说明代理不仅清洗数据，还能选择合适的分析视角。
+Now I move to the analysis section. The agent does not generate only one chart. It selects multiple chart types based on the detected data columns, including a bar chart, donut chart, histogram, line chart, and scatter plot. I can also click Expand to open a larger chart preview, which makes the results easier to inspect.
 
 1:50-2:00
 
-最后，用户可以导出 cleaned CSV，也可以在 Memory 区域看到最近的分析 checkpoint。如果切换到 Aggressive mode，代理会做出不同决策，例如直接截断异常值，并把风险等级提高。这个原型展示了一个完整的智能软件代理循环：perceive, decide, act, and remember.
+Finally, the user can export the cleaned CSV and check the Memory panel for recent analysis checkpoints. If I switch to Aggressive mode, the agent makes a different decision, such as capping outliers and increasing the risk level. This prototype demonstrates a complete intelligent software agent cycle: perceive, decide, act, and remember.
