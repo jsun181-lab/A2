@@ -47,21 +47,22 @@ The local Git history contains brief checkpoints:
 1. Scaffolded the DataInsight agent core, CSV parser, and sample dirty dataset.
 2. Added the browser UI, chart rendering, memory, responsive layout, and tests.
 3. Added report, screenshots, demo video, and reproduction documentation.
+4. Polished the dashboard UI with refined spacing, card hierarchy, responsive behavior, and refreshed visual evidence.
 
 ## Project Structure
 
 ```text
 .
-├── assets/                 # System design diagram and screenshots
-├── data/                   # Sample dirty CSV
-├── demo/                   # Demo video and narration script
-├── report/                 # Two-page assignment report
-├── scripts/                # Report and video generation scripts
-├── src/                    # Agent logic, CSV parser, and UI controller
-├── tests/                  # Node test suite
-├── index.html              # Main app
-├── styles.css              # Responsive UI styles
-└── package.json            # Test and start scripts
+|-- assets/                 # System design diagram and screenshots
+|-- data/                   # Sample dirty CSV
+|-- demo/                   # Demo video and narration script
+|-- report/                 # Two-page assignment report
+|-- scripts/                # Report and video generation scripts
+|-- src/                    # Agent logic, CSV parser, and UI controller
+|-- tests/                  # Node test suite
+|-- index.html              # Main app
+|-- styles.css              # Responsive UI styles
+`-- package.json            # Test and start scripts
 ```
 
 ## Notes for Submission
