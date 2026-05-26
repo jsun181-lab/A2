@@ -25,6 +25,9 @@ test("agent perceives dirty CSV issues and improves quality", () => {
   assert.ok(result.action.cleanedRows.length < result.perception.rowCount);
   assert.ok(result.action.cleanedQualityScore > result.perception.qualityScore);
   assert.ok(result.action.charts.some((chart) => chart.type === "bar"));
+  assert.ok(result.action.charts.some((chart) => chart.type === "donut"));
+  assert.ok(result.action.charts.some((chart) => chart.type === "histogram"));
+  assert.ok(result.action.charts.length >= 5);
   assert.ok(result.action.summary.length >= 3);
 });
 

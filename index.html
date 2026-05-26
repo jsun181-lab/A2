@@ -86,6 +86,20 @@
           </section>
         </section>
       </section>
+
+      <dialog id="chart-dialog" class="chart-dialog" aria-labelledby="chart-dialog-title">
+        <div class="chart-dialog-frame">
+          <div class="chart-dialog-header">
+            <div>
+              <p class="eyebrow">Expanded chart</p>
+              <h2 id="chart-dialog-title">Chart preview</h2>
+              <p id="chart-dialog-meta" class="muted"></p>
+            </div>
+            <button id="close-chart" type="button">Close</button>
+          </div>
+          <canvas id="chart-dialog-canvas" width="1280" height="720"></canvas>
+        </div>
+      </dialog>
     </main>
 
     <script type="module" src="src/app.js"></script>

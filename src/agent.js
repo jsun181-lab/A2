@@ -257,6 +257,22 @@ function buildAnalysisPlan(perception, goal) {
     });
   }
 
+  if (category.length) {
+    plan.push({
+      id: "category-distribution",
+      action: `Show distribution of ${category[0].name}.`,
+      chart: "donut"
+    });
+  }
+
+  if (numeric.length) {
+    plan.push({
+      id: "numeric-distribution",
+      action: `Show distribution range for ${numeric[0].name}.`,
+      chart: "histogram"
+    });
+  }
+
   if (dates.length && numeric.length) {
     plan.push({
       id: "time-trend",
@@ -371,6 +387,14 @@ function createCharts(headers, rows, analysisPlan) {
     charts.push(createBarChart(rows, category[0].name, numeric[0].name));
   }
 
+  if (category.length && analysisPlan.some((item) => item.chart === "donut")) {
+    charts.push(createDonutChart(rows, category[0].name));
+  }
+
+  if (numeric.length && analysisPlan.some((item) => item.chart === "histogram")) {
+    charts.push(createHistogramChart(rows, numeric[0].name));
+  }
+
   if (dates.length && numeric.length && analysisPlan.some((item) => item.chart === "line")) {
     charts.push(createLineChart(rows, dates[0].name, numeric[0].name));
   }
@@ -398,6 +422,66 @@ function createBarChart(rows, categoryColumn, valueColumn) {
       .map(([label, value]) => ({ label, value: round(value) }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8)
+  };
+}
+
+function createDonutChart(rows, categoryColumn) {
+  const counts = new Map();
+  rows.forEach((row) => {
+    const key = row[categoryColumn] || "Unknown";
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+
+  const sorted = [...counts.entries()]
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
+  const top = sorted.slice(0, 5);
+  const other = sorted.slice(5).reduce((total, point) => total + point.value, 0);
+  if (other > 0) top.push({ label: "Other", value: other });
+
+  return {
+    id: "category-donut",
+    type: "donut",
+    title: `${categoryColumn} distribution`,
+    xLabel: categoryColumn,
+    yLabel: "Rows",
+    data: top
+  };
+}
+
+function createHistogramChart(rows, valueColumn) {
+  const values = rows.map((row) => toNumber(row[valueColumn])).filter(Number.isFinite);
+  if (!values.length) return null;
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const bucketCount = Math.min(6, Math.max(3, Math.ceil(Math.sqrt(values.length))));
+  const width = max === min ? 1 : (max - min) / bucketCount;
+  const buckets = Array.from({ length: bucketCount }, (_, index) => {
+    const start = min + index * width;
+    const end = index === bucketCount - 1 ? max : start + width;
+    return {
+      start,
+      end,
+      value: 0,
+      label: max === min ? `${round(min)}` : `${round(start)}-${round(end)}`
+    };
+  });
+
+  values.forEach((value) => {
+    const index = max === min
+      ? 0
+      : Math.min(Math.floor((value - min) / width), bucketCount - 1);
+    buckets[index].value += 1;
+  });
+
+  return {
+    id: "numeric-histogram",
+    type: "histogram",
+    title: `${valueColumn} distribution`,
+    xLabel: valueColumn,
+    yLabel: "Rows",
+    data: buckets
   };
 }
 
@@ -457,6 +541,17 @@ function summarizeFindings(perception, rows, cleanProfile, charts, decision) {
     const last = line.data[line.data.length - 1];
     const direction = last.value >= first.value ? "increased" : "decreased";
     findings.push(`${line.yLabel} ${direction} from ${first.label} to ${last.label}.`);
+  }
+
+  const donut = charts.find((chart) => chart.type === "donut");
+  if (donut?.data?.length) {
+    findings.push(`${donut.data[0].label} is the most common ${donut.xLabel} segment with ${donut.data[0].value} row(s).`);
+  }
+
+  const histogram = charts.find((chart) => chart.type === "histogram");
+  if (histogram?.data?.length) {
+    const peak = histogram.data.reduce((best, point) => point.value > best.value ? point : best, histogram.data[0]);
+    findings.push(`${histogram.xLabel} is most concentrated in the ${peak.label} range.`);
   }
 
   if (decision.riskLevel !== "low") {

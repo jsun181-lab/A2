@@ -21,7 +21,12 @@ const elements = {
   clearMemory: document.querySelector("#clear-memory"),
   output: document.querySelector("#output"),
   memory: document.querySelector("#memory-log"),
-  demoBanner: document.querySelector("#demo-banner")
+  demoBanner: document.querySelector("#demo-banner"),
+  chartDialog: document.querySelector("#chart-dialog"),
+  chartDialogTitle: document.querySelector("#chart-dialog-title"),
+  chartDialogMeta: document.querySelector("#chart-dialog-meta"),
+  chartDialogCanvas: document.querySelector("#chart-dialog-canvas"),
+  closeChart: document.querySelector("#close-chart")
 };
 
 elements.file.addEventListener("change", async (event) => {
@@ -37,6 +42,15 @@ elements.download.addEventListener("click", downloadCleanedCSV);
 elements.clearMemory.addEventListener("click", () => {
   storage.clear();
   renderMemory();
+});
+elements.output.addEventListener("click", (event) => {
+  const opener = event.target.closest("[data-chart-open]");
+  if (!opener) return;
+  openChart(Number(opener.dataset.chartOpen));
+});
+elements.closeChart.addEventListener("click", () => elements.chartDialog.close());
+elements.chartDialog.addEventListener("click", (event) => {
+  if (event.target === elements.chartDialog) elements.chartDialog.close();
 });
 
 async function loadSampleAndRun(autoRun = true) {
@@ -69,7 +83,10 @@ function render() {
   renderDemoBanner();
   renderOutput();
   renderMemory();
-  requestAnimationFrame(drawCharts);
+  requestAnimationFrame(() => {
+    drawCharts();
+    scrollToHashTarget();
+  });
 }
 
 function renderDemoBanner() {
@@ -151,15 +168,24 @@ function renderOutput() {
       </ul>
     </section>
 
-    <section class="panel">
-      <div class="panel-heading">
-        <p class="eyebrow">Analysis</p>
-        <h3>Generated charts</h3>
+    <section id="charts-panel" class="panel">
+      <div class="panel-heading row-heading">
+        <div>
+          <p class="eyebrow">Analysis</p>
+          <h3>Generated charts</h3>
+        </div>
+        <span class="quality-lift">${action.charts.length} charts</span>
       </div>
       <div class="charts-grid">
         ${action.charts.map((chart, index) => `
-          <figure class="chart-card">
-            <canvas width="480" height="270" data-chart-index="${index}"></canvas>
+          <figure class="chart-card ${index === 0 ? "is-wide" : ""}">
+            <div class="chart-toolbar">
+              <span class="chart-type">${escapeHtml(chartTypeLabel(chart.type))}</span>
+              <button type="button" data-chart-open="${index}">Expand</button>
+            </div>
+            <button class="chart-canvas-button" type="button" data-chart-open="${index}" aria-label="Expand ${escapeHtml(chart.title)}">
+              <canvas width="760" height="460" data-chart-index="${index}"></canvas>
+            </button>
             <figcaption>${escapeHtml(chart.title)}</figcaption>
           </figure>
         `).join("")}
@@ -255,75 +281,215 @@ function drawCharts() {
   document.querySelectorAll("canvas[data-chart-index]").forEach((canvas) => {
     const chart = state.result.action.charts[Number(canvas.dataset.chartIndex)];
     if (!chart) return;
-    const context = canvas.getContext("2d");
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    if (chart.type === "bar") drawBarChart(context, canvas, chart);
-    if (chart.type === "line") drawLineChart(context, canvas, chart);
-    if (chart.type === "scatter") drawScatterChart(context, canvas, chart);
+    drawChart(canvas, chart);
   });
 }
 
+function scrollToHashTarget() {
+  if (window.location.hash !== "#charts-panel") return;
+  document.querySelector("#charts-panel")?.scrollIntoView({ block: "start" });
+}
+
+function openChart(index) {
+  const chart = state.result?.action.charts[index];
+  if (!chart) return;
+  elements.chartDialogTitle.textContent = chart.title;
+  elements.chartDialogMeta.textContent = `${chartTypeLabel(chart.type)} - ${chart.data.length} data point(s)`;
+  if (typeof elements.chartDialog.showModal === "function") {
+    elements.chartDialog.showModal();
+  } else {
+    elements.chartDialog.setAttribute("open", "");
+  }
+  requestAnimationFrame(() => drawChart(elements.chartDialogCanvas, chart));
+}
+
+function drawChart(canvas, chart) {
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  if (chart.type === "bar") drawBarChart(context, canvas, chart);
+  if (chart.type === "histogram") drawHistogramChart(context, canvas, chart);
+  if (chart.type === "line") drawLineChart(context, canvas, chart);
+  if (chart.type === "scatter") drawScatterChart(context, canvas, chart);
+  if (chart.type === "donut") drawDonutChart(context, canvas, chart);
+}
+
+const CHART_COLORS = ["#14766d", "#31519c", "#a35f00", "#aa3948", "#586978", "#58a6a0"];
+
 function drawBarChart(context, canvas, chart) {
-  const padding = { left: 58, right: 24, top: 28, bottom: 56 };
+  drawColumnChart(context, canvas, chart, "#14766d");
+}
+
+function drawHistogramChart(context, canvas, chart) {
+  drawColumnChart(context, canvas, chart, "#31519c");
+}
+
+function drawColumnChart(context, canvas, chart, fill) {
+  if (!chart.data.length) return drawNoData(context, canvas);
+  const padding = chartPadding(canvas);
   const values = chart.data.map((point) => point.value);
   const max = Math.max(...values, 1);
-  const width = (canvas.width - padding.left - padding.right) / chart.data.length;
-  drawAxes(context, canvas, padding);
+  const plotWidth = canvas.width - padding.left - padding.right;
+  const plotHeight = canvas.height - padding.top - padding.bottom;
+  const slotWidth = plotWidth / chart.data.length;
+  const barGap = Math.max(10, slotWidth * 0.18);
+  drawAxes(context, canvas, padding, max);
   chart.data.forEach((point, index) => {
-    const height = ((canvas.height - padding.top - padding.bottom) * point.value) / max;
-    const x = padding.left + index * width + 8;
+    const height = (plotHeight * point.value) / max;
+    const x = padding.left + index * slotWidth + barGap / 2;
     const y = canvas.height - padding.bottom - height;
-    context.fillStyle = "#14766d";
-    context.fillRect(x, y, Math.max(width - 16, 12), height);
+    const barWidth = Math.max(slotWidth - barGap, 14);
+    context.fillStyle = fill;
+    context.fillRect(x, y, barWidth, height);
+    context.fillStyle = "#15202b";
+    context.font = chartFont(canvas, 13, 800);
+    context.textAlign = "center";
+    context.fillText(formatNumber(point.value), x + barWidth / 2, Math.max(y - 8, padding.top + 16));
     context.fillStyle = "#526271";
-    context.font = "12px sans-serif";
-    context.fillText(point.label.slice(0, 10), x, canvas.height - 32);
+    context.font = chartFont(canvas, 12, 700);
+    fitText(context, point.label, x + barWidth / 2, canvas.height - Math.max(20, padding.bottom * 0.38), Math.max(barWidth + 8, 52));
   });
+  drawAxisLabels(context, canvas, chart, padding);
 }
 
 function drawLineChart(context, canvas, chart) {
-  const padding = { left: 58, right: 24, top: 28, bottom: 56 };
+  if (!chart.data.length) return drawNoData(context, canvas);
+  const padding = chartPadding(canvas);
   const values = chart.data.map((point) => point.value);
   const max = Math.max(...values, 1);
   const min = Math.min(...values, 0);
-  drawAxes(context, canvas, padding);
-  context.strokeStyle = "#344c9a";
-  context.lineWidth = 3;
+  const plotWidth = canvas.width - padding.left - padding.right;
+  const plotHeight = canvas.height - padding.top - padding.bottom;
+  drawAxes(context, canvas, padding, max);
+
+  const points = chart.data.map((point, index) => ({
+    label: point.label,
+    value: point.value,
+    x: padding.left + (index / Math.max(chart.data.length - 1, 1)) * plotWidth,
+    y: canvas.height - padding.bottom - ((point.value - min) / Math.max(max - min, 1)) * plotHeight
+  }));
+
+  context.fillStyle = "rgba(49, 81, 156, 0.1)";
   context.beginPath();
-  chart.data.forEach((point, index) => {
-    const x = padding.left + (index / Math.max(chart.data.length - 1, 1)) * (canvas.width - padding.left - padding.right);
-    const y = canvas.height - padding.bottom - ((point.value - min) / Math.max(max - min, 1)) * (canvas.height - padding.top - padding.bottom);
-    if (index === 0) context.moveTo(x, y);
-    else context.lineTo(x, y);
-    context.fillStyle = "#344c9a";
-    context.fillRect(x - 3, y - 3, 6, 6);
-    context.fillStyle = "#526271";
-    context.font = "12px sans-serif";
-    context.fillText(point.label, x - 20, canvas.height - 32);
+  points.forEach((point, index) => {
+    if (index === 0) context.moveTo(point.x, canvas.height - padding.bottom);
+    context.lineTo(point.x, point.y);
+  });
+  context.lineTo(points[points.length - 1].x, canvas.height - padding.bottom);
+  context.closePath();
+  context.fill();
+
+  context.strokeStyle = "#344c9a";
+  context.lineWidth = Math.max(3, canvas.width / 240);
+  context.beginPath();
+  points.forEach((point, index) => {
+    if (index === 0) context.moveTo(point.x, point.y);
+    else context.lineTo(point.x, point.y);
   });
   context.stroke();
+
+  const labelEvery = Math.max(1, Math.ceil(points.length / 6));
+  points.forEach((point, index) => {
+    context.fillStyle = "#344c9a";
+    context.beginPath();
+    context.arc(point.x, point.y, Math.max(4, canvas.width / 170), 0, Math.PI * 2);
+    context.fill();
+    if (index % labelEvery === 0 || index === points.length - 1) {
+      context.fillStyle = "#526271";
+      context.font = chartFont(canvas, 12, 700);
+      context.textAlign = "center";
+      context.fillText(point.label, point.x, canvas.height - Math.max(20, padding.bottom * 0.38));
+    }
+  });
+  drawAxisLabels(context, canvas, chart, padding);
 }
 
 function drawScatterChart(context, canvas, chart) {
-  const padding = { left: 58, right: 24, top: 28, bottom: 56 };
+  if (!chart.data.length) return drawNoData(context, canvas);
+  const padding = chartPadding(canvas);
   const xs = chart.data.map((point) => point.x);
   const ys = chart.data.map((point) => point.y);
   const minX = Math.min(...xs, 0);
   const maxX = Math.max(...xs, 1);
   const minY = Math.min(...ys, 0);
   const maxY = Math.max(...ys, 1);
-  drawAxes(context, canvas, padding);
+  drawAxes(context, canvas, padding, maxY);
   chart.data.forEach((point) => {
     const x = padding.left + ((point.x - minX) / Math.max(maxX - minX, 1)) * (canvas.width - padding.left - padding.right);
     const y = canvas.height - padding.bottom - ((point.y - minY) / Math.max(maxY - minY, 1)) * (canvas.height - padding.top - padding.bottom);
     context.fillStyle = "rgba(20, 118, 109, 0.72)";
     context.beginPath();
-    context.arc(x, y, 4, 0, Math.PI * 2);
+    context.arc(x, y, Math.max(4, canvas.width / 180), 0, Math.PI * 2);
     context.fill();
+  });
+  drawAxisLabels(context, canvas, chart, padding);
+}
+
+function drawDonutChart(context, canvas, chart) {
+  if (!chart.data.length) return drawNoData(context, canvas);
+  const total = chart.data.reduce((sum, point) => sum + point.value, 0);
+  const centerX = canvas.width * 0.34;
+  const centerY = canvas.height * 0.5;
+  const radius = Math.min(canvas.width * 0.22, canvas.height * 0.32);
+  const innerRadius = radius * 0.58;
+  let angle = -Math.PI / 2;
+
+  chart.data.forEach((point, index) => {
+    const slice = total ? (point.value / total) * Math.PI * 2 : 0;
+    context.beginPath();
+    context.moveTo(centerX, centerY);
+    context.arc(centerX, centerY, radius, angle, angle + slice);
+    context.closePath();
+    context.fillStyle = CHART_COLORS[index % CHART_COLORS.length];
+    context.fill();
+    angle += slice;
+  });
+
+  context.beginPath();
+  context.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
+  context.fillStyle = "#ffffff";
+  context.fill();
+  context.fillStyle = "#15202b";
+  context.font = chartFont(canvas, 26, 900);
+  context.textAlign = "center";
+  context.fillText(String(total), centerX, centerY - 4);
+  context.fillStyle = "#617084";
+  context.font = chartFont(canvas, 12, 800);
+  context.fillText("rows", centerX, centerY + 24);
+
+  const legendX = canvas.width * 0.61;
+  let legendY = canvas.height * 0.24;
+  chart.data.forEach((point, index) => {
+    const percent = total ? Math.round((point.value / total) * 100) : 0;
+    context.fillStyle = CHART_COLORS[index % CHART_COLORS.length];
+    context.fillRect(legendX, legendY - 12, 16, 16);
+    context.fillStyle = "#15202b";
+    context.font = chartFont(canvas, 13, 800);
+    context.textAlign = "left";
+    fitText(context, `${point.label} (${percent}%)`, legendX + 26, legendY, canvas.width - legendX - 42, "left");
+    legendY += Math.max(30, canvas.height * 0.07);
   });
 }
 
-function drawAxes(context, canvas, padding) {
+function drawAxes(context, canvas, padding, maxValue = 1) {
+  const tickCount = 4;
+  context.strokeStyle = "#edf1f4";
+  context.lineWidth = 1;
+  context.font = chartFont(canvas, 11, 700);
+  context.fillStyle = "#8b99aa";
+  context.textAlign = "right";
+
+  for (let tick = 0; tick <= tickCount; tick += 1) {
+    const ratio = tick / tickCount;
+    const y = canvas.height - padding.bottom - ratio * (canvas.height - padding.top - padding.bottom);
+    context.beginPath();
+    context.moveTo(padding.left, y);
+    context.lineTo(canvas.width - padding.right, y);
+    context.stroke();
+    context.fillText(formatNumber(maxValue * ratio), padding.left - 10, y + 4);
+  }
+
   context.strokeStyle = "#dbe2e8";
   context.lineWidth = 1;
   context.beginPath();
@@ -331,6 +497,55 @@ function drawAxes(context, canvas, padding) {
   context.lineTo(padding.left, canvas.height - padding.bottom);
   context.lineTo(canvas.width - padding.right, canvas.height - padding.bottom);
   context.stroke();
+}
+
+function drawAxisLabels(context, canvas, chart, padding) {
+  context.fillStyle = "#617084";
+  context.font = chartFont(canvas, 12, 800);
+  context.textAlign = "center";
+  context.fillText(chart.xLabel || "", padding.left + (canvas.width - padding.left - padding.right) / 2, canvas.height - 8);
+  context.save();
+  context.translate(18, padding.top + (canvas.height - padding.top - padding.bottom) / 2);
+  context.rotate(-Math.PI / 2);
+  context.fillText(chart.yLabel || "", 0, 0);
+  context.restore();
+}
+
+function drawNoData(context, canvas) {
+  context.fillStyle = "#617084";
+  context.font = chartFont(canvas, 16, 800);
+  context.textAlign = "center";
+  context.fillText("No chart data available", canvas.width / 2, canvas.height / 2);
+}
+
+function chartPadding(canvas) {
+  return {
+    left: Math.max(66, Math.round(canvas.width * 0.1)),
+    right: Math.max(28, Math.round(canvas.width * 0.04)),
+    top: Math.max(34, Math.round(canvas.height * 0.09)),
+    bottom: Math.max(72, Math.round(canvas.height * 0.16))
+  };
+}
+
+function chartFont(canvas, size, weight = 700) {
+  const scaled = Math.max(size, Math.round(canvas.width / 60));
+  return `${weight} ${scaled}px sans-serif`;
+}
+
+function fitText(context, text, x, y, maxWidth, align = "center") {
+  let output = String(text);
+  context.textAlign = align;
+  while (context.measureText(output).width > maxWidth && output.length > 4) {
+    output = `${output.slice(0, -4)}...`;
+  }
+  context.fillText(output, x, y);
+}
+
+function formatNumber(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  if (Math.abs(number) >= 1000) return number.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  return number.toLocaleString("en-US", { maximumFractionDigits: 1 });
 }
 
 function downloadCleanedCSV() {
@@ -354,6 +569,17 @@ function metric(label, value) {
 
 function titleCase(value) {
   return String(value).replace(/\b[a-z]/g, (char) => char.toUpperCase());
+}
+
+function chartTypeLabel(type) {
+  const labels = {
+    bar: "Bar chart",
+    donut: "Donut chart",
+    histogram: "Histogram",
+    line: "Line chart",
+    scatter: "Scatter plot"
+  };
+  return labels[type] || titleCase(type);
 }
 
 function escapeHtml(value) {

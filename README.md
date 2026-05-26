@@ -48,6 +48,7 @@ The local Git history contains brief checkpoints:
 2. Added the browser UI, chart rendering, memory, responsive layout, and tests.
 3. Added report, screenshots, demo video, and reproduction documentation.
 4. Polished the dashboard UI with refined spacing, card hierarchy, responsive behavior, and refreshed visual evidence.
+5. Expanded analysis with larger charts, donut and histogram views, and click-to-zoom chart previews.
 
 ## Project Structure
 
