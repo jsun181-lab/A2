@@ -9,9 +9,9 @@ from docx.shared import Inches, Pt, RGBColor
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ROOT / "assets"
 REPORT = ROOT / "report"
 OUTPUT = REPORT / "DataInsight_Report.docx"
+SYSTEM_DESIGN = REPORT / "system-design.png"
 
 REPO_LINK = "https://github.com/dsfga/datainsight-agent"
 
@@ -158,7 +158,7 @@ def build():
     add_heading(doc, "System Design", 1)
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.add_run().add_picture(str(ASSETS / "system-design.png"), width=Inches(6.1))
+    p.add_run().add_picture(str(SYSTEM_DESIGN), width=Inches(6.45))
 
     add_heading(doc, "Design Explanation", 1)
     add_bullets(
@@ -172,32 +172,31 @@ def build():
     )
 
     doc.add_page_break()
-    add_title(doc, "How the Prototype Works", "Screenshots from the running local web app")
-    table = doc.add_table(rows=2, cols=2)
+    add_title(doc, "How the Prototype Works", "Runtime behavior from the local web app")
+    table = doc.add_table(rows=1, cols=3)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = False
     set_table_width(table, 9360)
     set_table_borders(table)
 
-    screenshots = [
-        (ASSETS / "screenshot-balanced.png", "Balanced mode: the agent perceives data quality problems and chooses seven low-risk cleaning actions."),
-        (ASSETS / "screenshot-analysis.png", "Results view: the agent acts by plotting charts, previewing cleaned data, and summarizing findings."),
+    runtime_steps = [
+        ("Perceive", "The user loads a CSV. The agent profiles rows, columns, data types, missing values, duplicates, outliers, and quality score."),
+        ("Decide", "The selected cleaning mode determines whether the agent fills, flags, caps, or standardizes values. Risk level is shown with the decision."),
+        ("Act", "The agent cleans the rows, generates charts, summarizes findings, enables cleaned CSV export, and saves a memory checkpoint."),
     ]
 
-    for col in range(2):
-        set_cell_width(table.cell(0, col), 4680)
-        set_cell_width(table.cell(1, col), 4680)
-        set_cell_margins(table.cell(0, col))
-        set_cell_margins(table.cell(1, col))
-        set_cell_shading(table.cell(1, col), "F8FAFC")
-        table.cell(0, col).vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
-        table.cell(1, col).vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
-
-    for col, (path, caption) in enumerate(screenshots):
-        p = table.cell(0, col).paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.add_run().add_picture(str(path), width=Inches(3.05))
-        add_caption(table.cell(1, col), caption)
+    for col, (label, description) in enumerate(runtime_steps):
+        cell = table.cell(0, col)
+        set_cell_width(cell, 3120)
+        set_cell_margins(cell, top=150, start=150, bottom=150, end=150)
+        set_cell_shading(cell, "F8FAFC")
+        cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
+        heading = cell.paragraphs[0]
+        run = heading.add_run(label)
+        run.font.bold = True
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(20, 118, 109)
+        add_caption(cell, description)
 
     add_heading(doc, "Workflow Evidence", 1)
     add_bullets(

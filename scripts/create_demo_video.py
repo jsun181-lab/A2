@@ -6,10 +6,10 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ROOT / "assets"
-DEMO = ROOT / "demo"
+REPORT = ROOT / "report"
+DEMO = ROOT / "demo video"
 TMP = ROOT / "tmp" / "demo_frames"
-OUT = DEMO / "datainsight-demo.mp4"
+OUT = DEMO / "demo video.mp4"
 WIDTH = 1280
 HEIGHT = 720
 
@@ -53,7 +53,7 @@ def make_frame(index, title, caption, screenshot=None):
     draw.text((64, 98), title, font=font(42, True), fill="#17212b")
     draw_wrapped(draw, caption, (64, 154), 50, font(24), "#526271")
 
-    image = screenshot or ASSETS / "system-design.png"
+    image = screenshot or REPORT / "system-design.png"
     draw.rounded_rectangle((505, 88, 1215, 630), radius=14, fill="#fbfcfd", outline="#dbe3e8", width=2)
     paste_image(canvas, image, (526, 110, 1194, 608))
     draw.text((64, HEIGHT - 82), f"{index}/6", font=font(22, True), fill="#344c9a")
@@ -67,11 +67,11 @@ def main():
     DEMO.mkdir(parents=True, exist_ok=True)
     frames = [
         make_frame(1, "Agent goal", "Turn a raw CSV into cleaned data, charts, and short findings without external APIs."),
-        make_frame(2, "Perception", "The agent profiles rows, columns, missing values, duplicates, category inconsistencies, and outliers.", ASSETS / "screenshot-balanced.png"),
-        make_frame(3, "Decision", "Balanced mode chooses low-risk cleaning: remove duplicates, fill missing values, standardize categories, and flag outliers.", ASSETS / "screenshot-balanced.png"),
-        make_frame(4, "Action", "The agent applies the plan, lifts data quality, creates charts, and previews the cleaned dataset.", ASSETS / "screenshot-results.png"),
-        make_frame(5, "Alternative strategy", "Aggressive mode changes the decision: numeric missing values use means and revenue outliers are capped.", ASSETS / "screenshot-aggressive.png"),
-        make_frame(6, "Reproduce", "Run npm test, then python -m http.server 8765. Open localhost:8765 and click Load Sample, then Run Agent.", ASSETS / "screenshot-results.png"),
+        make_frame(2, "Perception", "The agent profiles rows, columns, missing values, duplicates, category inconsistencies, and outliers."),
+        make_frame(3, "Decision", "Balanced mode chooses low-risk cleaning: remove duplicates, fill missing values, standardize categories, and flag outliers."),
+        make_frame(4, "Action", "The agent applies the plan, lifts data quality, creates charts, and previews the cleaned dataset."),
+        make_frame(5, "Alternative strategy", "Aggressive mode changes the decision: numeric missing values use means and revenue outliers are capped."),
+        make_frame(6, "Reproduce", "Run npm test, then python -m http.server 8765. Open localhost:8765 and click Load Sample, then Run Agent."),
     ]
     durations = [10, 20, 25, 25, 25, 15]
     concat = TMP / "concat.txt"

@@ -106,7 +106,7 @@ function renderOutput() {
   if (!state.result) {
     elements.output.innerHTML = `
       <section class="empty-state">
-        <img src="assets/system-design.svg" alt="DataInsight agent architecture">
+        <img src="report/system-design.png" alt="DataInsight agent architecture">
       </section>
     `;
     return;

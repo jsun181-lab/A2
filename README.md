@@ -2,11 +2,9 @@
 
 GitHub repository link: [https://github.com/dsfga/datainsight-agent](https://github.com/dsfga/datainsight-agent)
 
-Demo video link: [demo/datainsight-demo.mp4](demo/datainsight-demo.mp4)
+Demo video link: [demo video/demo video.mp4](<demo video/demo video.mp4>)
 
 DataInsight Agent is an intelligent CSV cleaning and analysis agent prototype for COMPSCI 767 Assignment 2. It reads a CSV file, profiles data quality issues, decides cleaning and analysis steps, acts by transforming the dataset and generating charts, and stores recent analysis checkpoints in local browser memory.
-
-![DataInsight Agent system design](assets/system-design.svg)
 
 ## Agent Capabilities
 
@@ -37,8 +35,7 @@ No API keys or external services are required.
 ## Assignment Report
 
 - DOCX report: [report/DataInsight_Report.docx](report/DataInsight_Report.docx)
-- PDF preview: [report/DataInsight_Report.pdf](report/DataInsight_Report.pdf)
-- Screenshots: [balanced mode](assets/screenshot-balanced.png), [analysis crop](assets/screenshot-analysis.png), [results view](assets/screenshot-results.png), and [aggressive mode](assets/screenshot-aggressive.png)
+- System design diagram: [report/system-design.png](report/system-design.png)
 
 ## Design Evolution Checkpoints
 
@@ -49,15 +46,15 @@ The local Git history contains brief checkpoints:
 3. Added report, screenshots, demo video, and reproduction documentation.
 4. Polished the dashboard UI with refined spacing, card hierarchy, responsive behavior, and refreshed visual evidence.
 5. Expanded analysis with larger charts, donut and histogram views, and click-to-zoom chart previews.
+6. Replaced the old asset-based diagram with the final report flowchart and simplified repository references.
 
 ## Project Structure
 
 ```text
 .
-|-- assets/                 # System design diagram and screenshots
 |-- data/                   # Sample dirty CSV
-|-- demo/                   # Demo video and narration script
-|-- report/                 # Two-page assignment report
+|-- demo video/             # Demo video file
+|-- report/                 # Two-page assignment report and system design diagram
 |-- scripts/                # Report and video generation scripts
 |-- src/                    # Agent logic, CSV parser, and UI controller
 |-- tests/                  # Node test suite
