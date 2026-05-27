@@ -1,6 +1,6 @@
 # DataInsight Agent
 
-GitHub repository link: [https://github.com/dsfga/datainsight-agent](https://github.com/dsfga/datainsight-agent)
+GitHub repository link: [https://github.com/jsun181-lab/A2.git](https://github.com/jsun181-lab/A2.git)
 
 Demo video link: [demo video/demo video.mp4](<demo video/demo video.mp4>)
 
